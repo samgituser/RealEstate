@@ -1,0 +1,58 @@
+{% extends 'properties/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Search Properties - Real Estate{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Search Form -->
+    <div class="col-md-3">
+        <div class="search-form">
+            <h4 class="mb-3">Search Properties</h4>
+            <form method="get" action="{% url 'properties:property_search' %}">
+                <div class="mb-3">
+                    <input type="text" name="q" class="form-control" placeholder="Search by keyword..." value="{{ query }}">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="col-md-9">
+        <h3>Search Results</h3>
+        {% if query %}
+        <p>Showing results for "{{ query }}"</p>
+        {% endif %}
+
+        <div class="row">
+            {% for property in properties %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card property-card h-100">
+                    <img src="{{ property.main_image.url }}" class="card-img-top property-image" alt="{{ property.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ property.title }}</h5>
+                        <p class="card-text text-primary fw-bold">${{ property.price|floatformat:2 }}</p>
+                        <p class="card-text">
+                            <i class="fas fa-bed"></i> {{ property.bedrooms }} beds |
+                            <i class="fas fa-bath"></i> {{ property.bathrooms }} baths |
+                            <i class="fas fa-ruler-combined"></i> {{ property.square_feet }} sqft
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-map-marker-alt"></i> {{ property.city }}, {{ property.state }}
+                        </p>
+                        <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No properties found matching your search criteria.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,76 @@
+{% extends 'properties/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Properties - Real Estate{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Search Form -->
+    <div class="col-md-3">
+        <div class="search-form">
+            <h4 class="mb-3">Search Properties</h4>
+            <form method="get">
+                {{ search_form|crispy }}
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Listings -->
+    <div class="col-md-9">
+        <div class="row">
+            {% for property in properties %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card property-card h-100">
+                    <img src="{{ property.main_image.url }}" class="card-img-top property-image" alt="{{ property.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ property.title }}</h5>
+                        <p class="card-text text-primary fw-bold">${{ property.price|floatformat:2 }}</p>
+                        <p class="card-text">
+                            <i class="fas fa-bed"></i> {{ property.bedrooms }} beds |
+                            <i class="fas fa-bath"></i> {{ property.bathrooms }} baths |
+                            <i class="fas fa-ruler-combined"></i> {{ property.square_feet }} sqft
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-map-marker-alt"></i> {{ property.city }}, {{ property.state }}
+                        </p>
+                        <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No properties found matching your criteria.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if properties.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if properties.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ properties.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in properties.paginator.page_range %}
+                <li class="page-item {% if properties.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+
+                {% if properties.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ properties.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
