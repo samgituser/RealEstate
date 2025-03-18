@@ -1,76 +1,207 @@
 {% extends 'properties/base.html' %}
-{% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Properties - Real Estate{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Search Form -->
-    <div class="col-md-3">
-        <div class="search-form">
-            <h4 class="mb-3">Search Properties</h4>
-            <form method="get">
-                {{ search_form|crispy }}
-                <button type="submit" class="btn btn-primary w-100">Search</button>
-            </form>
-        </div>
-    </div>
+<div class="container py-5">
+    <div class="row">
+        <!-- Search Column -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Search Properties</h5>
+                    <form method="get" action="{% url 'properties:property_list' %}">
+                        <div class="mb-3">
+                            <label for="property_type" class="form-label">Property Type</label>
+                            <select name="property_type" id="property_type" class="form-select">
+                                <option value="">All Types</option>
+                                {% for type in property_types %}
+                                <option value="{{ type.0 }}" {% if request.GET.property_type == type.0 %}selected{% endif %}>
+                                    {{ type.1 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-    <!-- Property Listings -->
-    <div class="col-md-9">
-        <div class="row">
-            {% for property in properties %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card property-card h-100">
-                    <img src="{{ property.main_image.url }}" class="card-img-top property-image" alt="{{ property.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ property.title }}</h5>
-                        <p class="card-text text-primary fw-bold">${{ property.price|floatformat:2 }}</p>
-                        <p class="card-text">
-                            <i class="fas fa-bed"></i> {{ property.bedrooms }} beds |
-                            <i class="fas fa-bath"></i> {{ property.bathrooms }} baths |
-                            <i class="fas fa-ruler-combined"></i> {{ property.square_feet }} sqft
-                        </p>
-                        <p class="card-text">
-                            <i class="fas fa-map-marker-alt"></i> {{ property.city }}, {{ property.state }}
-                        </p>
-                        <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-outline-primary">View Details</a>
+                        <div class="mb-3">
+                            <label for="listing_type" class="form-label">Listing Type</label>
+                            <select name="listing_type" id="listing_type" class="form-select">
+                                <option value="">All Listings</option>
+                                {% for type in listing_types %}
+                                <option value="{{ type.0 }}" {% if request.GET.listing_type == type.0 %}selected{% endif %}>
+                                    {{ type.1 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="min_price" class="form-label">Price Range</label>
+                            <div class="input-group">
+                                <input type="number" name="min_price" id="min_price" class="form-control" placeholder="Min" value="{{ request.GET.min_price }}">
+                                <span class="input-group-text">-</span>
+                                <input type="number" name="max_price" id="max_price" class="form-control" placeholder="Max" value="{{ request.GET.max_price }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bedrooms" class="form-label">Bedrooms</label>
+                            <select name="bedrooms" id="bedrooms" class="form-select">
+                                <option value="">Any</option>
+                                {% for i in "12345" %}
+                                <option value="{{ i }}" {% if request.GET.bedrooms == i %}selected{% endif %}>
+                                    {{ i }}+
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bathrooms" class="form-label">Bathrooms</label>
+                            <select name="bathrooms" id="bathrooms" class="form-select">
+                                <option value="">Any</option>
+                                {% for i in "12345" %}
+                                <option value="{{ i }}" {% if request.GET.bathrooms == i %}selected{% endif %}>
+                                    {{ i }}+
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="min_square_feet" class="form-label">Square Feet</label>
+                            <div class="input-group">
+                                <input type="number" name="min_square_feet" id="min_square_feet" class="form-control" placeholder="Min" value="{{ request.GET.min_square_feet }}">
+                                <span class="input-group-text">-</span>
+                                <input type="number" name="max_square_feet" id="max_square_feet" class="form-control" placeholder="Max" value="{{ request.GET.max_square_feet }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="year_built" class="form-label">Year Built</label>
+                            <div class="input-group">
+                                <input type="number" name="min_year" id="min_year" class="form-control" placeholder="Min" value="{{ request.GET.min_year }}">
+                                <span class="input-group-text">-</span>
+                                <input type="number" name="max_year" id="max_year" class="form-control" placeholder="Max" value="{{ request.GET.max_year }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" name="city" id="city" class="form-control" placeholder="Enter city" value="{{ request.GET.city }}">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property List -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Properties</h2>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary active" data-view="grid">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-4" id="property-grid">
+                {% for property in properties %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ property.title }}</h5>
+                            <p class="card-text text-primary mb-2">${{ property.price|floatformat:0 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-bed me-1"></i>{{ property.bedrooms }} Beds
+                                        <i class="fas fa-bath ms-2 me-1"></i>{{ property.bathrooms }} Baths
+                                    </small>
+                                </div>
+                                <a href="{% url 'properties:property_detail' property.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <div class="alert alert-info">
-                    No properties found matching your criteria.
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No properties found matching your criteria.
+                    </div>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Pagination -->
-        {% if properties.has_other_pages %}
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if properties.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ properties.previous_page_number }}">Previous</a>
-                </li>
-                {% endif %}
-
-                {% for num in properties.paginator.page_range %}
-                <li class="page-item {% if properties.number == num %}active{% endif %}">
-                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                </li>
                 {% endfor %}
+            </div>
 
-                {% if properties.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ properties.next_page_number }}">Next</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
+            <!-- Pagination -->
+            {% if properties.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if properties.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ properties.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for i in properties.paginator.page_range %}
+                    <li class="page-item {% if properties.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            {{ i }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    {% if properties.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ properties.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gridView = document.getElementById('property-grid');
+        const viewButtons = document.querySelectorAll('[data-view]');
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const view = this.dataset.view;
+                
+                // Update active button
+                viewButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update grid/list view
+                if (view === 'grid') {
+                    gridView.classList.remove('list-view');
+                } else {
+                    gridView.classList.add('list-view');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %} 

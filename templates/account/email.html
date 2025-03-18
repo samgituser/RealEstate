@@ -1,0 +1,76 @@
+{% extends 'properties/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Change Email - Real Estate{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Email Addresses</h2>
+                    
+                    {% if user.emailaddress_set.all %}
+                    <div class="mb-4">
+                        <h5>Current Email Addresses:</h5>
+                        <div class="list-group">
+                            {% for emailaddress in user.emailaddress_set.all %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    {{ emailaddress.email }}
+                                    {% if emailaddress.verified %}
+                                    <span class="badge bg-success ms-2">Verified</span>
+                                    {% else %}
+                                    <span class="badge bg-warning ms-2">Unverified</span>
+                                    {% endif %}
+                                    {% if emailaddress.primary %}
+                                    <span class="badge bg-primary ms-2">Primary</span>
+                                    {% endif %}
+                                </div>
+                                {% if not emailaddress.primary %}
+                                <form method="post" action="{% url 'account_email' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="primary">
+                                    <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Make Primary</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <h5 class="mb-3">Add Email Address:</h5>
+                    <form method="post" action="{% url 'account_email' %}">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Add Email</button>
+                        </div>
+                    </form>
+
+                    {% if user.emailaddress_set.all %}
+                    <div class="mt-4">
+                        <h5>Remove Email Address:</h5>
+                        <form method="post" action="{% url 'account_email' %}" class="d-inline">
+                            {% csrf_token %}
+                            {% for emailaddress in user.emailaddress_set.all %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="email" id="email_{{ forloop.counter }}" value="{{ emailaddress.email }}">
+                                <label class="form-check-label" for="email_{{ forloop.counter }}">
+                                    {{ emailaddress.email }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-danger">Remove Selected Email</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

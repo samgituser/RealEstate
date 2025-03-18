@@ -1,0 +1,32 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Email Verification Failed - Real Estate{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-4">Email Verification Failed</h5>
+                
+                <div class="alert alert-danger">
+                    <p class="mb-0">
+                        The email verification link was invalid, possibly because it has already been used 
+                        or has expired. Please request a new verification email.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'account_signup' %}" class="btn btn-primary">Sign Up Again</a>
+                </div>
+
+                <hr>
+
+                <div>
+                    <p class="mb-0">Need help? <a href="{% url 'contact' %}">Contact us</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

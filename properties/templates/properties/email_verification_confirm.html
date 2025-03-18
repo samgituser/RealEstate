@@ -1,0 +1,26 @@
+{% extends 'properties/base.html' %}
+
+{% block title %}Email Verified - Real Estate{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-4">Email Verified</h5>
+                
+                <div class="alert alert-success">
+                    <p class="mb-0">
+                        Your email has been successfully verified. 
+                        You can now log in to your account.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'account_login' %}" class="btn btn-primary">Log In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
